@@ -10,15 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoControl
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoRepo
-import kotlinx.android.synthetic.main.activity_add_todo.*
-import kotlinx.android.synthetic.main.activity_main.*
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import kotlinx.android.synthetic.main.fragment_button.*
+import kotlinx.android.synthetic.main.fragment_list.*
 
 class MainActivity() : AppCompatActivity(), ITodoControl {
 
     override lateinit var todos: ITodoRepo
+    override lateinit var todostemp:ITodoRepo
     override fun launchAdd() {
         val intent = Intent(this, AddTodo::class.java)
         startActivityForResult(intent, ADD_TODO_REQUEST_CODE)
@@ -29,23 +27,27 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
         val todostring = Gson().toJson(todo)
         intent.putExtra("Todo",todostring)
         intent.putExtra("Idx", idx)
+        intent.putExtra("Id", todostemp.getTodo(idx).id)
         startActivityForResult(intent, EDIT_TODO_REQUEST_CODE)
     }
 
     override fun getCurrentCount() : Int {
-        return todos.getCount()
+        return todostemp.getCount()
     }
 
     override fun complete(idx: Int) {
-        todos.isCompleted(idx)
+
+        todostemp.isCompleted(idx)
     }
 
     override fun deleteTodo(idx: Int) {
-        todos.remove(idx)
+
+        todostemp.remove(idx)
     }
 
     override fun editTodo(idx: Int, todo: Todo) {
-        todos.replace(idx,todo)
+
+        todostemp.replace(idx,todo)
     }
 
 
@@ -53,16 +55,43 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        all_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+        active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
 
 
-        recycleview.layoutManager = LinearLayoutManager(this)
-        recycleview.adapter = MainAdapter(this)
 
-        todos = TodoRepo()
+        recycle_fram.layoutManager = LinearLayoutManager(this)
+        recycle_fram.adapter = MainAdapter(this)
+
+        todostemp = TodoRepo()
 
 
-        add_btn.setOnClickListener {
+        add_todo_btn.setOnClickListener {
             launchAdd()
+        }
+
+        all_btn.setOnClickListener {
+            all_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+            active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            todostemp.findAll()
+            recycle_fram.adapter?.notifyDataSetChanged()
+
+        }
+        active_btn.setOnClickListener {
+            all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            active_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+            completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            todostemp.findActive()
+            recycle_fram.adapter?.notifyDataSetChanged()
+        }
+        completed_btn.setOnClickListener {
+            all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+            completed_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+            todostemp.findCompleted()
+            recycle_fram.adapter?.notifyDataSetChanged()
         }
 
     }
@@ -77,8 +106,8 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
                         val json = data?.getStringExtra(AddTodo.TODO_EXTRA_KEY)
                         if (json != null){
                             val todo = Gson().fromJson<Todo>(json,Todo::class.java)
-                            todos.addTodo(todo)
-                            recycleview.adapter?.notifyItemInserted(todos.getCount())
+                            todostemp.addTodo(todo)
+                            recycle_fram.adapter?.notifyItemInserted(todostemp.getCount())
                         }
 
                     }
@@ -88,7 +117,7 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
                         if (json != null && idx != null){
                             val todo = Gson().fromJson<Todo>(json,Todo::class.java)
                             editTodo(idx,todo)
-                            recycleview.adapter?.notifyItemChanged(idx)
+                            recycle_fram.adapter?.notifyItemChanged(idx)
                         }
 
                     }

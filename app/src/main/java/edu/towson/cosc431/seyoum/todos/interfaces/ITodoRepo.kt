@@ -9,4 +9,7 @@ interface ITodoRepo{
     fun getTodo(idx: Int):Todo
     fun addTodo(todo: Todo)
     fun isCompleted(idx: Int)
+    fun findCompleted()
+    fun findActive()
+    fun findAll()
 }

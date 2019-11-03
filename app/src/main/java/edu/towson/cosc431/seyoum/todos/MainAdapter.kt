@@ -2,20 +2,18 @@ package edu.towson.cosc431.seyoum.todos
 
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoControl
+import edu.towson.cosc431.seyoum.todos.interfaces.ITodoRepo
 import kotlinx.android.synthetic.main.todolist.view.*
-import kotlin.collections.ArrayList
 
 class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomViewHolder>(){
-
     override fun getItemCount(): Int {
+        println(controller.getCurrentCount())
         return controller.getCurrentCount()
     }
 
@@ -33,7 +31,7 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
         layoutInflater.setOnClickListener {
             val position = viewHolder.adapterPosition
             println("adapt "+position)
-            val todo = controller.todos.getTodo(position)
+            val todo = controller.todostemp.getTodo(position)
             controller.launchEdit(position, todo)
 
         }
@@ -59,7 +57,7 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 
             val alert = dialogBuilder.create()
 
-            alert.setTitle(controller.todos.getTodo(position).title)
+            alert.setTitle(controller.todostemp.getTodo(position).title)
 
             alert.show()
 
@@ -69,7 +67,8 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
     }
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        val todo = controller.todos.getTodo(position)
+        val todo = controller.todostemp.getTodo(position)
+        println(todo)
         holder.BindTodo(todo)
     }
 
@@ -79,6 +78,15 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 class CustomViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
     fun BindTodo(todo:Todo){
+
+        if (todo.complete) {
+            itemView.titleview_txt.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            itemView.todoview_txt.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+        }
+        else{
+            itemView.titleview_txt.paintFlags = 0
+            itemView.todoview_txt.paintFlags = 0
+        }
 
         if (todo.content.length > 12){
             itemView.todoview_txt.text = todo.content.substring(0,11) + "..."

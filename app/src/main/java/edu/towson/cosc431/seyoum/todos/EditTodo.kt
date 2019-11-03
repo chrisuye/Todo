@@ -21,6 +21,7 @@ class EditTodo : AppCompatActivity(), View.OnClickListener {
         }
         else{
             val idx = intent.getIntExtra("Idx",-1)
+            val id = intent.getIntExtra("Id",0)
             val intent = Intent()
             val today = Calendar.getInstance()
             val date = SimpleDateFormat("EEE MMMM d H:m:s Y").format(today.time)
@@ -28,7 +29,7 @@ class EditTodo : AppCompatActivity(), View.OnClickListener {
             val text = editText.text.toString()
             val complete = editcheckBox.isChecked
 
-            val todo = Todo(title, text, complete, date)
+            val todo = Todo(id, title, text, complete, date)
             val json = Gson().toJson(todo)
             intent.putExtra(TODOE_EXTRA_KEY, json)
             intent.putExtra(POSITION_KEY, idx)

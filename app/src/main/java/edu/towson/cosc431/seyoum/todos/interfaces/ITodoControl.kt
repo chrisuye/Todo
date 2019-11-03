@@ -11,4 +11,6 @@ interface ITodoControl{
     fun getCurrentCount() : Int
 
     val todos: ITodoRepo
+    val todostemp: ITodoRepo
+
 }

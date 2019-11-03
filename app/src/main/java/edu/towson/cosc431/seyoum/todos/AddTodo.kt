@@ -28,7 +28,7 @@ class AddTodo : AppCompatActivity(), View.OnClickListener {
                     val text = content_txt.text.toString()
                     val complete = iscompleted_check.isChecked
 
-                    val todo = Todo(title, text, complete, date)
+                    val todo = Todo(0,title, text, complete, date)
                     val json = Gson().toJson(todo)
                     intent.putExtra(TODO_EXTRA_KEY, json)
                     setResult(Activity.RESULT_OK, intent)
