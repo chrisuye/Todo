@@ -8,15 +8,43 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import edu.towson.cosc431.seyoum.todos.interfaces.ITodoButton
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoControl
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoRepo
 import kotlinx.android.synthetic.main.fragment_button.*
 import kotlinx.android.synthetic.main.fragment_list.*
 
-class MainActivity() : AppCompatActivity(), ITodoControl {
+class MainActivity() : AppCompatActivity(), ITodoControl, ITodoButton, ButtonFragment.OnListChange {
+
+
+
+    override fun allButton() {
+        all_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+        active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        todostemp.findAll()
+        recycle_fram.adapter?.notifyDataSetChanged()
+    }
+
+    override fun activeButton() {
+        all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        active_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+        completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        todostemp.findActive()
+        recycle_fram.adapter?.notifyDataSetChanged()
+    }
+
+    override fun completedButton() {
+        all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
+        completed_btn.setBackgroundColor(Color.parseColor("#ff0000"))
+        todostemp.findCompleted()
+        recycle_fram.adapter?.notifyDataSetChanged()
+    }
 
     override lateinit var todos: ITodoRepo
     override lateinit var todostemp:ITodoRepo
+    
     override fun launchAdd() {
         val intent = Intent(this, AddTodo::class.java)
         startActivityForResult(intent, ADD_TODO_REQUEST_CODE)
@@ -55,6 +83,14 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val frag = supportFragmentManager.findFragmentById(R.id.fragment_btn)
+
+        if (frag != null){
+            if (frag is ButtonFragment){
+                frag.setOnListChange(this)
+            }
+        }
+
         all_btn.setBackgroundColor(Color.parseColor("#ff0000"))
         active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
         completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
@@ -66,33 +102,11 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
 
         todostemp = TodoRepo()
 
-
         add_todo_btn.setOnClickListener {
             launchAdd()
         }
 
-        all_btn.setOnClickListener {
-            all_btn.setBackgroundColor(Color.parseColor("#ff0000"))
-            active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            todostemp.findAll()
-            recycle_fram.adapter?.notifyDataSetChanged()
 
-        }
-        active_btn.setOnClickListener {
-            all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            active_btn.setBackgroundColor(Color.parseColor("#ff0000"))
-            completed_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            todostemp.findActive()
-            recycle_fram.adapter?.notifyDataSetChanged()
-        }
-        completed_btn.setOnClickListener {
-            all_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            active_btn.setBackgroundColor(Color.parseColor("#d3d3d3"))
-            completed_btn.setBackgroundColor(Color.parseColor("#ff0000"))
-            todostemp.findCompleted()
-            recycle_fram.adapter?.notifyDataSetChanged()
-        }
 
     }
 
@@ -129,6 +143,26 @@ class MainActivity() : AppCompatActivity(), ITodoControl {
             }
         }
 
+    }
+    override fun OnListChange(change: ButtonFragment.OnListChange.Change) {
+
+
+
+        Toast.makeText(this,"$change", Toast.LENGTH_LONG).show()
+
+        println(change)
+
+        when (change){
+            ButtonFragment.OnListChange.Change.ALL -> {
+                allButton()
+            }
+            ButtonFragment.OnListChange.Change.ACTIVE -> {
+                activeButton()
+            }
+            ButtonFragment.OnListChange.Change.COMPLETED -> {
+                completedButton()
+            }
+        }
     }
     companion object{
         val ADD_TODO_REQUEST_CODE = 1

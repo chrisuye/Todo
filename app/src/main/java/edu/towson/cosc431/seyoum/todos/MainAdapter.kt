@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.todolist.view.*
 
 class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomViewHolder>(){
     override fun getItemCount(): Int {
-        println(controller.getCurrentCount())
+
         return controller.getCurrentCount()
     }
 
@@ -30,7 +30,7 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 
         layoutInflater.setOnClickListener {
             val position = viewHolder.adapterPosition
-            println("adapt "+position)
+
             val todo = controller.todostemp.getTodo(position)
             controller.launchEdit(position, todo)
 
@@ -68,7 +68,7 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         val todo = controller.todostemp.getTodo(position)
-        println(todo)
+
         holder.BindTodo(todo)
     }
 
