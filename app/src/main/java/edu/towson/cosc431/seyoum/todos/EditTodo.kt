@@ -21,7 +21,7 @@ class EditTodo : AppCompatActivity(), View.OnClickListener {
         }
         else{
             val idx = intent.getIntExtra("Idx",-1)
-            val id = intent.getIntExtra("Id",0)
+            val id = intent.getIntExtra("Id",-1)
             val intent = Intent()
             val today = Calendar.getInstance()
             val date = SimpleDateFormat("EEE MMMM d H:m:s Y").format(today.time)

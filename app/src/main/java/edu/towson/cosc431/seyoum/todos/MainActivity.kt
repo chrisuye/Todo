@@ -50,7 +50,7 @@ class MainActivity() : AppCompatActivity(), ITodoControl, ITodoButton, ButtonFra
         startActivityForResult(intent, ADD_TODO_REQUEST_CODE)
     }
 
-    override fun launchEdit(idx: Int, todo: Todo) {
+    override fun launchEdit(idx:Int, todo: Todo) {
         val intent = Intent(this, EditTodo::class.java)
         val todostring = Gson().toJson(todo)
         intent.putExtra("Todo",todostring)
@@ -63,19 +63,19 @@ class MainActivity() : AppCompatActivity(), ITodoControl, ITodoButton, ButtonFra
         return todostemp.getCount()
     }
 
-    override fun complete(idx: Int) {
+    override fun complete(todo: Todo) {
 
-        todostemp.isCompleted(idx)
+        todostemp.isCompleted(todo)
     }
 
-    override fun deleteTodo(idx: Int) {
+    override fun deleteTodo(todo: Todo) {
 
-        todostemp.remove(idx)
+        todostemp.remove(todo)
     }
 
-    override fun editTodo(idx: Int, todo: Todo) {
+    override fun editTodo(todo: Todo) {
 
-        todostemp.replace(idx,todo)
+        todostemp.replace(todo)
     }
 
 
@@ -100,7 +100,7 @@ class MainActivity() : AppCompatActivity(), ITodoControl, ITodoButton, ButtonFra
         recycle_fram.layoutManager = LinearLayoutManager(this)
         recycle_fram.adapter = MainAdapter(this)
 
-        todostemp = TodoRepo()
+        todostemp = TodoRepo(this)
 
         add_todo_btn.setOnClickListener {
             launchAdd()
@@ -130,7 +130,7 @@ class MainActivity() : AppCompatActivity(), ITodoControl, ITodoButton, ButtonFra
                         val idx = data?.getIntExtra(EditTodo.POSITION_KEY,1)
                         if (json != null && idx != null){
                             val todo = Gson().fromJson<Todo>(json,Todo::class.java)
-                            editTodo(idx,todo)
+                            editTodo(todo)
                             recycle_fram.adapter?.notifyItemChanged(idx)
                         }
 

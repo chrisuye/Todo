@@ -23,7 +23,8 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 
         layoutInflater.completeview.setOnClickListener {
             val position = viewHolder.adapterPosition
-            controller.complete(position)
+            val todo = controller.todostemp.getTodo(position)
+            controller.complete(todo)
             this.notifyItemChanged(position)
 
         }
@@ -32,13 +33,15 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
             val position = viewHolder.adapterPosition
 
             val todo = controller.todostemp.getTodo(position)
-            controller.launchEdit(position, todo)
+            val idx = position
+            controller.launchEdit(idx, todo)
 
         }
 
         layoutInflater.setOnLongClickListener {
             val position = viewHolder.adapterPosition
             val dialogBuilder = AlertDialog.Builder(layoutInflater.context)
+            val todo = controller.todostemp.getTodo(position)
 
 
             dialogBuilder.setMessage("Do you want to delete?")
@@ -46,7 +49,7 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
                 .setCancelable(false)
 
                 .setPositiveButton("Proceed", DialogInterface.OnClickListener {
-                        dialog, id -> controller.deleteTodo(position)
+                        dialog, id -> controller.deleteTodo(todo)
                     this.notifyItemRemoved(position)
                 })
 
@@ -77,9 +80,10 @@ class MainAdapter (val controller:ITodoControl): RecyclerView.Adapter<CustomView
 
 class CustomViewHolder(view: View): RecyclerView.ViewHolder(view) {
 
-    fun BindTodo(todo:Todo){
+    fun BindTodo(todo:Todo?){
 
-        if (todo.complete) {
+
+        if (todo!!.complete) {
             itemView.titleview_txt.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             itemView.todoview_txt.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }
@@ -87,7 +91,7 @@ class CustomViewHolder(view: View): RecyclerView.ViewHolder(view) {
             itemView.titleview_txt.paintFlags = 0
             itemView.todoview_txt.paintFlags = 0
         }
-
+        //Todo need to make sure its not null
         if (todo.content.length > 12){
             itemView.todoview_txt.text = todo.content.substring(0,11) + "..."
         }

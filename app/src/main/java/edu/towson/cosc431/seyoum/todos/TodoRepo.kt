@@ -1,37 +1,35 @@
 package edu.towson.cosc431.seyoum.todos
 
+import android.content.Context
 import edu.towson.cosc431.seyoum.todos.interfaces.ITodoRepo
-import java.text.SimpleDateFormat
-import java.util.*
 
-class TodoRepo : ITodoRepo{
+class TodoRepo(ctx: Context) : ITodoRepo{
 
-    private var todos: MutableList<Todo> = mutableListOf()
     private var todostemp: MutableList<Todo> = mutableListOf()
-    var id = 10
+    var location: Int
+    private val db: ITodoDataBase
 
     init {
-        val today = Calendar.getInstance()
-        val time = SimpleDateFormat("EEE MMMM d H:m:s Y").format(today.time)
-        val seed = (1..10).map { idx -> Todo(idx,"TodoTitle$idx", "TodoContent$idx", false, time) }
-        todos.addAll(seed)
-        todostemp.addAll(todos)
+        location = 0
+        db = TodoDataBase(ctx)
+        todostemp.addAll(db.getTodos())
     }
     override fun getCount(): Int {
         return todostemp.size
     }
 
-    override fun replace(idx: Int, todo: Todo) {
+    override fun replace(todo: Todo) {
+
+        db.updateTodo(todo)
+
         var position = 0
 
-        val idd = todo.id
+        val id = todo.id
 
-        //todos.set(idx, todo)
-        todostemp.set(idx, todo)
 
-        while (position < todos.size){
-            if (todos.get(position).id == idd){
-                todos.set(position, todo)
+        while (position < todostemp.size){
+            if (todostemp.get(position).id == id){
+                todostemp.set(position, todo)
                 break
             }
             position++
@@ -39,15 +37,17 @@ class TodoRepo : ITodoRepo{
 
     }
 
-    override fun remove(idx: Int) {
+    override fun remove(todo: Todo) {
         var position = 0
 
-        val idd = todostemp.get(idx).id
-        todostemp.removeAt(idx)
+        db.deleteTodo(todo)
 
-        while (position < todos.size){
-            if (todos.get(position).id == idd){
-                todos.removeAt(position)
+        val id = todo.id
+
+
+        while (position < todostemp.size){
+            if (todostemp.get(position).id == id){
+                todostemp.removeAt(position)
                 break
             }
             position++
@@ -55,26 +55,36 @@ class TodoRepo : ITodoRepo{
     }
 
     override fun getTodo(idx: Int): Todo {
+
         return todostemp.get(idx)
     }
 
     override fun addTodo(todo: Todo) {
-        id++
-        todo.id = id
-        //todos.add(todo)
-        todostemp.add(todo)
-        todos.add(todo)
+
+        db.addTodo(todo)
+        when(location){
+            0 -> findAll()
+            1 -> findActive()
+            2 -> findCompleted()
+        }
     }
 
-    override fun isCompleted(idx: Int) {
-        var position = 0
-        val check = !todostemp.get(idx).complete
-        todostemp.get(idx).complete = check
-        val idd = todostemp.get(idx).id
+    override fun isCompleted(todo: Todo) {
 
-        while (position < todos.size){
-            if (todos.get(position).id == idd){
-                todos.get(position).complete = check
+        val check = !todo.complete
+
+        todo.complete = check
+
+        db.updateTodo(todo)
+
+
+        var position = 0
+        val id = todo.id
+
+
+        while (position < todostemp.size){
+            if (todostemp.get(position).id == id){
+                todostemp.get(position).complete = check
                 break
             }
             position++
@@ -82,30 +92,33 @@ class TodoRepo : ITodoRepo{
     }
 
     override fun findCompleted() {
+        location = 2
         var position = 0
         todostemp.clear()
-        while (position < todos.size){
-            if (todos.get(position).complete){
-                todostemp.add(todos.get(position))
+        while (position < db.getTodos().size){
+            if (db.getTodos().get(position).complete){
+                todostemp.add(db.getTodos().get(position))
             }
             position++
         }
     }
 
     override fun findActive() {
+        location = 1
         var position = 0
         todostemp.clear()
-        while (position < todos.size){
-            if (!todos.get(position).complete){
-                todostemp.add(todos.get(position))
+        while (position < db.getTodos().size){
+            if (!db.getTodos().get(position).complete){
+                todostemp.add(db.getTodos().get(position))
             }
             position++
         }
     }
 
     override fun findAll() {
+        location = 0
         todostemp.clear()
-        todostemp.addAll(todos)
+        todostemp.addAll(db.getTodos())
     }
 
 }
